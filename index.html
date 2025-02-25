@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>1998-08</title> <!-- 初始標題 -->
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 20px;
+        }
+        img {
+            width: 80%;
+            max-width: 800px;
+            border: 2px solid #333;
+            margin-top: 10px;
+        }
+        .controls {
+            margin-top: 20px;
+        }
+        label, button {
+            font-size: 16px;
+            margin: 5px;
+        }
+        .slider-container {
+            position: relative;
+            width: 80%;
+            max-width: 800px;
+            margin: auto;
+        }
+        input[type="range"] {
+            width: 100%;
+        }
+        .year-markers {
+        display: flex;
+        justify-content: space-between;
+        font-size: 14px;
+        color: #555;
+        margin-top: 20px;
+        margin-left: -10px; /* 新增：整體年份標記往左移 */
+    }
+
+    .year-markers span {
+        transform: rotate(-45deg);
+        transform-origin: center left;
+        white-space: nowrap;
+        display: inline-block;
+        margin-left: -10px; /* 新增：每個年份單獨再往左移一點 */
+    }
+
+    </style>
+</head>
+<body>
+    <h1 id="page-title">1998-08</h1> <!-- 標題顯示圖片日期 -->
+    
+    <div class="controls">
+        <button onclick="changeCategory('甲藻')">甲藻</button>
+        <button onclick="changeCategory('綠藻')">綠藻</button>
+        <button onclick="changeCategory('矽藻')">矽藻</button>
+    </div>
+
+    <img id="image-display" src="甲藻地圖照片/map_1998-08.png" alt="地圖">
+    
+    <div class="controls">
+        <label for="slider">選擇年份：</label>
+        <div class="slider-container">
+            <input type="range" id="slider" min="0" max="0" step="1">
+            <div id="year-markers" class="year-markers"></div> <!-- 動態顯示年份標記 -->
+        </div>
+        <span id="selected-date">1998-08</span>
+    </div>
+
+    <div class="controls">
+        <label for="speed">播放速度：</label>
+        <select id="speed">
+            <option value="1000">1 張/秒</option>
+            <option value="500">2 張/秒</option>
+            <option value="333">3 張/秒</option>
+            <option value="250">4 張/秒</option>
+            <option value="200">5 張/秒</option>
+        </select>
+    </div>
+
+    <div class="controls">
+        <button id="play">播放</button>
+        <button id="pause">暫停</button>
+    </div>
+
+    <script>
+        let currentCategory = "甲藻";  // 預設顯示甲藻
+        let images = [];
+        let currentIndex = 0;
+        let intervalId = null;
+
+        function loadImages(category) {
+            fetch(`${category}地圖照片/images.json`)
+                .then(response => response.json())
+                .then(data => {
+                    images = data;
+                    document.getElementById("slider").max = images.length - 1;
+                    currentIndex = 0;
+                    updateYearMarkers();
+                    updateImage();
+                });
+        }
+
+        function changeCategory(category) {
+            currentCategory = category;
+            loadImages(category);
+        }
+
+        function updateImage() {
+            let imageName = images[currentIndex];
+            let dateStr = imageName.replace("map_", "").replace(".png", "");
+            
+            document.getElementById("image-display").src = `${currentCategory}地圖照片/${imageName}`;
+            document.getElementById("selected-date").textContent = dateStr;
+            document.getElementById("page-title").textContent = dateStr;
+            document.title = dateStr;
+        }
+
+        document.getElementById("slider").addEventListener("input", () => {
+            currentIndex = parseInt(document.getElementById("slider").value);
+            updateImage();
+        });
+
+        document.getElementById("play").addEventListener("click", () => {
+            if (intervalId) return;
+            let speed = parseInt(document.getElementById("speed").value);
+            intervalId = setInterval(() => {
+                currentIndex = (currentIndex + 1) % images.length;
+                document.getElementById("slider").value = currentIndex;
+                updateImage();
+            }, speed);
+        });
+
+        document.getElementById("pause").addEventListener("click", () => {
+            clearInterval(intervalId);
+            intervalId = null;
+        });
+
+        function updateYearMarkers() {
+            const yearMarkers = document.getElementById("year-markers");
+            yearMarkers.innerHTML = "";
+
+            // 取得所有年份
+            let years = images.map(img => img.match(/\d{4}/)[0]);
+            let uniqueYears = [...new Set(years)]; // 過濾重複年份
+
+            // 建立標記
+            uniqueYears.forEach((year, index) => {
+                let marker = document.createElement("span");
+                marker.textContent = year;
+                marker.style.flex = "1"; // 平均分佈
+                if (index === 0) marker.style.textAlign = "left";
+                if (index === uniqueYears.length - 1) marker.style.textAlign = "right";
+                yearMarkers.appendChild(marker);
+            });
+        }
+
+        // 預設載入甲藻圖片
+        loadImages("甲藻");
+    </script>
+</body>
+</html>
