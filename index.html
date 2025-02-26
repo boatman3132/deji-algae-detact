@@ -9,6 +9,7 @@
             font-family: Arial, sans-serif;
             text-align: center;
             margin: 20px;
+            background-color: #f9f9f9;
         }
         img {
             width: 80%;
@@ -19,9 +20,40 @@
         .controls {
             margin-top: 20px;
         }
-        label, button {
+        label, button, select {
             font-size: 16px;
             margin: 5px;
+        }
+        /* 原有按鈕樣式 */
+        button {
+            background-color: #007BFF;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            padding: 10px 20px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        button:hover {
+            background-color: #0056b3;
+            transform: translateY(-2px);
+        }
+        button:active {
+            transform: translateY(0);
+            background-color: #004494;
+        }
+        /* 新增：目前選擇按鈕的樣式 */
+        .category-btn.active {
+            background-color: #28a745;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+        }
+        /* 改善下拉選單樣式 */
+        select {
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            background-color: #fff;
         }
         .slider-container {
             position: relative;
@@ -33,31 +65,30 @@
             width: 100%;
         }
         .year-markers {
-        display: flex;
-        justify-content: space-between;
-        font-size: 14px;
-        color: #555;
-        margin-top: 20px;
-        margin-left: -10px; /* 新增：整體年份標記往左移 */
-    }
-
-    .year-markers span {
-        transform: rotate(-45deg);
-        transform-origin: center left;
-        white-space: nowrap;
-        display: inline-block;
-        margin-left: -10px; /* 新增：每個年份單獨再往左移一點 */
-    }
-
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+            color: #555;
+            margin-top: 20px;
+            margin-left: -10px; /* 整體年份標記往左移 */
+        }
+        .year-markers span {
+            transform: rotate(-45deg);
+            transform-origin: center left;
+            white-space: nowrap;
+            display: inline-block;
+            margin-left: -10px; /* 每個年份單獨再往左移一點 */
+        }
     </style>
 </head>
 <body>
     <h1 id="page-title">1998-08</h1> <!-- 標題顯示圖片日期 -->
     
     <div class="controls">
-        <button onclick="changeCategory('甲藻')">甲藻</button>
-        <button onclick="changeCategory('綠藻')">綠藻</button>
-        <button onclick="changeCategory('矽藻')">矽藻</button>
+        <!-- 為按鈕加入 class 與 data-category -->
+        <button class="category-btn active" data-category="甲藻" onclick="changeCategory('甲藻')">甲藻</button>
+        <button class="category-btn" data-category="綠藻" onclick="changeCategory('綠藻')">綠藻</button>
+        <button class="category-btn" data-category="矽藻" onclick="changeCategory('矽藻')">矽藻</button>
     </div>
 
     <img id="image-display" src="甲藻地圖照片/map_1998-08.png" alt="地圖">
@@ -108,6 +139,15 @@
         function changeCategory(category) {
             currentCategory = category;
             loadImages(category);
+            // 更新目前選擇的按鈕狀態
+            let categoryButtons = document.querySelectorAll(".category-btn");
+            categoryButtons.forEach(btn => {
+                if(btn.getAttribute("data-category") === category){
+                    btn.classList.add("active");
+                } else {
+                    btn.classList.remove("active");
+                }
+            });
         }
 
         function updateImage() {
