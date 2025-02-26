@@ -132,9 +132,27 @@
                     document.getElementById("slider").max = images.length - 1;
                     currentIndex = 0;
                     updateYearMarkers();
-                    updateImage();
+
+                    // 預載入圖片
+                    preloadImages().then(() => {
+                        updateImage(); // 等所有圖片載入後再更新顯示
+                    });
                 });
         }
+
+        function preloadImages() {
+            let promises = images.map(imageName => {
+                return new Promise((resolve, reject) => {
+                    let img = new Image();
+                    img.src = `${currentCategory}地圖照片/${imageName}`;
+                    img.onload = resolve;  // 當圖片載入完成時，標記為已完成
+                    img.onerror = reject;  // 如果載入失敗，標記為失敗
+                });
+            });
+
+            return Promise.all(promises);  // 確保所有圖片都已下載完成
+        }
+
 
         function changeCategory(category) {
             currentCategory = category;
@@ -165,8 +183,12 @@
             updateImage();
         });
 
-        document.getElementById("play").addEventListener("click", () => {
+        document.getElementById("play").addEventListener("click", async () => {
             if (intervalId) return;
+            
+            // 確保所有圖片已經載入
+            await preloadImages();
+
             let speed = parseInt(document.getElementById("speed").value);
             intervalId = setInterval(() => {
                 currentIndex = (currentIndex + 1) % images.length;
@@ -174,6 +196,7 @@
                 updateImage();
             }, speed);
         });
+
 
         document.getElementById("pause").addEventListener("click", () => {
             clearInterval(intervalId);
