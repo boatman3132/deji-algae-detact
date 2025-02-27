@@ -79,6 +79,29 @@
             display: inline-block;
             margin-left: -10px; /* 每個年份單獨再往左移一點 */
         }
+
+        .slider-container {
+            position: relative;
+            width: 80%;
+            max-width: 800px;
+            margin: auto;
+            padding: 20px 0;
+        }
+
+        .chart-overlay {
+            position: absolute;
+            top: 50%;  /* 調整圖表位置，確保它與時間軸對齊 */
+            transform: translate(-30px,-190px); /* 向上移動 20px */
+            width: 100%;
+            height: 300px; /* 可依需求調整高度 */
+            background-image: url('algae_trend.png');
+            background-size: 130%,100%;  /* 拉伸圖片以適應寬度 */
+            background-position: center;
+            background-repeat: no-repeat;
+            opacity: 0.5; /* 可調整透明度 */
+            pointer-events: none; /* 避免影響滑塊操作 */
+        }
+
     </style>
 </head>
 <body>
@@ -96,9 +119,11 @@
     <div class="controls">
         <label for="slider">選擇年份：</label>
         <div class="slider-container">
+            <div class="chart-overlay"></div>  <!-- 新增折線圖底圖 -->
             <input type="range" id="slider" min="0" max="0" step="1">
-            <div id="year-markers" class="year-markers"></div> <!-- 動態顯示年份標記 -->
+            <div id="year-markers" class="year-markers"></div>
         </div>
+        
         <span id="selected-date">1998-08</span>
     </div>
 
